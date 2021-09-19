@@ -9,6 +9,7 @@ yarn-error.log*
 inputs/*
 outputs/
 *.local
+.vscode
 
 # Runtime data
 pids
