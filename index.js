@@ -11,6 +11,7 @@ String.prototype.capitalizeFirstLetter = function () {
 };
 
 const inputsPath = "./inputs/";
+const localInputsPath = "./inputs.local/";
 const outputsPath = "./outputs/";
 
 const handleFolders = () => {
@@ -18,16 +19,43 @@ const handleFolders = () => {
   fs.mkdirSync(outputsPath, { recursive: true });
 };
 
-const getAttributes = () => {
+const searchForInputFolder = () => {
+  let inputDirectory = inputsPath;
+  let error = false;
+
+  try {
+    if (fs.existsSync(localInputsPath)) {
+      inputDirectory = localInputsPath;
+    } else {
+      error = true;
+      console.log(`${inputsPath} does not exist.`);
+      fs.mkdirSync(inputsPath, { recursive: true });
+      console.log(`${inputsPath} created.`);
+    }
+  } catch (e) {
+    error = true;
+    console.log("An error occurred.", e);
+  }
+
+  if (error) {
+    return {
+      error: `Please put your icons into ${inputsPath} directory and re-run the script.`,
+    };
+  } else {
+    return { directory: inputDirectory };
+  }
+};
+
+const getAttributes = (directory) => {
   return fs
-    .readdirSync(inputsPath, { withFileTypes: true })
+    .readdirSync(directory, { withFileTypes: true })
     .filter((dirent) => dirent.isFile())
     .filter((file) => file.name !== ".DS_Store")
     .map((file) => {
       const name = file.name.replace(".svg", "");
 
       let data = fs
-        .readFileSync(`${inputsPath}${file.name}`, "utf8")
+        .readFileSync(`${directory}${file.name}`, "utf8")
         .toString()
         .replaceAll(`'`, `"`);
 
@@ -100,11 +128,21 @@ const createEs6Import = (files) => {
 };
 
 const run = async () => {
+  console.clear();
   console.log("Started.");
 
-  handleFolders();
+  const folder = searchForInputFolder();
+  if (folder.error) {
+    console.log(folder.error);
+    return;
+  }
 
-  const files = getAttributes();
+  const files = getAttributes(folder.directory);
+  if (files.length === 0) {
+    console.log(`Found no files. Exiting.`);
+    return;
+  }
+  handleFolders();
 
   const object = createObject(files);
   saveObjectAsJSON(object);
