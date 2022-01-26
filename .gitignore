@@ -10,6 +10,9 @@ inputs/*
 outputs/
 *.local
 .vscode
+*.hidden.*
+*.hidden
+*.zip
 
 # Runtime data
 pids

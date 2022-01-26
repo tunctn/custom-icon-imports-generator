@@ -1,6 +1,6 @@
 const fs = require("fs");
 const { PATHS } = require("../constants");
-const capitalizeFirstLetter = require("../utils/capitalizeFirstLetter");
+const normalizeName = require("../utils/normalizeName");
 
 module.exports = (files) => {
   let autoMessage = "/* This file is auto-generated */\n";
@@ -12,11 +12,8 @@ module.exports = (files) => {
 
   let imports = ``;
   files.forEach((file) => {
-    imports =
-      imports +
-      `export const Ci${capitalizeFirstLetter(file.name)}=p=><S {...p} i={i.${
-        file.name
-      }} />\n`;
+    let name = normalizeName(file.name);
+    imports = imports + `export const ${name}=p=><S {...p} i={i.${name}} />\n`;
   });
 
   const file = autoMessage + gitHub + react + lib + svgItem + imports;
