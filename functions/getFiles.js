@@ -3,6 +3,7 @@ const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
 
 const replaceAll = require("../utils/replaceAll");
+const normalizeName = require("../utils/normalizeName");
 
 const getAttributes = (dom, node) => {
   const svgAttr = dom.querySelector(node).attributes;
@@ -22,10 +23,16 @@ module.exports = (directory) => {
     .filter((dirent) => dirent.isFile())
     .filter((file) => file.name !== ".DS_Store")
     .map((file) => {
-      let name = file.name
-        .replace(".svg", "")
-        .replace("icons8-", "")
-        .replace(" (1)", "-filled");
+      let name = file.name.replace(".svg", "");
+
+      name = name.replace("icons8-", "").replace(" (1)", "-filled");
+
+      let split = name.split("-");
+      let isFilled = split[split.length - 1] === "filled";
+
+      let iconDefaultName = normalizeName(name);
+      if (isFilled)
+        iconDefaultName = normalizeName(name.replace("-filled", ""));
 
       let data = fs.readFileSync(`${directory}${file.name}`, "utf8").toString();
 
@@ -50,6 +57,8 @@ module.exports = (directory) => {
         name,
         viewBox,
         pathD,
+        isFilled,
+        iconDefaultName,
       };
     });
 };

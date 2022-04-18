@@ -23,8 +23,8 @@ const run = async () => {
   createOutputsFolder();
 
   const object = createObject(files);
-  saveObjectAsJSON(object);
-  createEs6Import(files);
+  // saveObjectAsJSON(object);
+  createEs6Import(files, object);
 
   console.log("You can find your exports in outputs folder.");
 };
